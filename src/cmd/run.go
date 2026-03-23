@@ -59,7 +59,7 @@ var ping = &cobra.Command{
 	Short: "Ping the cluster",
 	Run: func(cmd *cobra.Command, _ []string) {
 		v := viper.GetViper()
-		venvPath := v.GetString("ansible.venv_path")
+		venvPath := v.GetString("deploy.venv_path")
 		if venvPath != "" {
 			venvBin := filepath.Join(venvPath, "bin")
 			currentPath := os.Getenv("PATH")
@@ -91,7 +91,7 @@ var updateNodeCmd = &cobra.Command{
 	Short: "Update OS pkgs for each node in the cluster",
 	Run: func(cmd *cobra.Command, _ []string) {
 		v := viper.GetViper()
-		venvPath := v.GetString("ansible.venv_path")
+		venvPath := v.GetString("deploy.venv_path")
 		if venvPath != "" {
 			venvBin := filepath.Join(venvPath, "bin")
 			currentPath := os.Getenv("PATH")
@@ -121,7 +121,7 @@ var releaseUpgrade = &cobra.Command{
 	Short: "Update OS release for each node in the cluster",
 	Run: func(cmd *cobra.Command, _ []string) {
 		v := viper.GetViper()
-		venvPath := v.GetString("ansible.venv_path")
+		venvPath := v.GetString("deploy.venv_path")
 		if venvPath != "" {
 			venvBin := filepath.Join(venvPath, "bin")
 			currentPath := os.Getenv("PATH")
@@ -150,11 +150,15 @@ var install = &cobra.Command{
 	Use:   "install",
 	Short: "Install Python dependencies with virtual environment",
 	Run: func(cmd *cobra.Command, args []string) {
-		venvPath := "venv"
+		v := viper.GetViper()
+		venvPath := v.GetString("deploy.venv_path")
+		if venvPath == "" {
+			venvPath = "venv"
+		}
 		pipPath := filepath.Join(venvPath, "bin", "pip")
 		if _, err := os.Stat(venvPath); os.IsNotExist(err) {
 			klog.Info("Creating virtual environment...")
-			createVenv := exec.Command("python3.11", "-m", "venv", venvPath)
+			createVenv := exec.Command("python3", "-m", "venv", venvPath)
 			if err := createVenv.Run(); err != nil {
 				klog.Fatalf("Failed to create virtual environment: %v", err)
 			}

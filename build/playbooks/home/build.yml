@@ -1,47 +1,62 @@
 ---
 - name: Configure Play for home directory
   hosts: localhost
+  connection: local
   tasks:
     - name: Copy nvim config
       become: yes
       become_method: sudo
       ansible.builtin.copy:
-        src: /home/blong14/Developer/git/compute-cluster/build/home/blong14/.config/nvim
-        dest: /home/blong14/.config
-        group: blong14
-        owner: blong14
+        src: "{{ playbook_dir }}/files/.config/nvim"
+        dest: "{{ lookup('env', 'HOME') }}/.config"
+        group: "{{ lookup('env', 'USER') }}"
+        owner: "{{ lookup('env', 'USER') }}"
         directory_mode: '0755'
         mode: '0644'
     - name: Copy bash config 
       become: yes
       become_method: sudo
       ansible.builtin.copy:
-        src: /home/blong14/Developer/git/compute-cluster/build/home/blong14/{{item}}
-        dest: /home/blong14/{{item}}
+        src: "{{ playbook_dir }}/files/{{ item }}"
+        dest: "{{ lookup('env', 'HOME') }}/{{ item }}"
+        owner: "{{ lookup('env', 'USER') }}"
+        group: "{{ lookup('env', 'USER') }}"
       loop:
         - .bashrc
         - .bash_aliases
         - .bash_logout
+    - name: Ensure bin directory exists
+      become: yes
+      become_method: sudo
+      ansible.builtin.file:
+        path: "{{ lookup('env', 'HOME') }}/bin"
+        state: directory
+        owner: "{{ lookup('env', 'USER') }}"
+        group: "{{ lookup('env', 'USER') }}"
+        mode: '0755'
     - name: Copy install scripts
       become: yes
       become_method: sudo
       ansible.builtin.copy:
-        src: /home/blong14/Developer/git/compute-cluster/build/home/blong14/bin/{{item}}
-        dest: /home/blong14/bin/{{item}}
+        src: "{{ playbook_dir }}/files/bin/{{ item }}"
+        dest: "{{ lookup('env', 'HOME') }}/bin/{{ item }}"
+        owner: "{{ lookup('env', 'USER') }}"
+        group: "{{ lookup('env', 'USER') }}"
       loop:
         - install_go.sh
         - install_node.sh
         - install_zig.sh
         - syspkg.sh
     - name: Change file ownership, group and permissions
+      become: yes
+      become_method: sudo
       ansible.builtin.file:
-        path: /home/blong14/bin/{{item}}
-        owner: blong14
-        group: blong14
+        path: "{{ lookup('env', 'HOME') }}/bin/{{ item }}"
+        owner: "{{ lookup('env', 'USER') }}"
+        group: "{{ lookup('env', 'USER') }}"
         mode: '0755'
       loop:
         - install_go.sh
         - install_node.sh
         - install_zig.sh
         - syspkg.sh
-

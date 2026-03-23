@@ -24,7 +24,7 @@ func NewAnsibleOpts(v *viper.Viper) PlayOpts {
 			PlaybookDir: v.GetString("deploy.playbook-dir"),
 		},
 		PlaybookOpts: &playbook.AnsiblePlaybookOptions{
-			AskBecomePass:    true,
+			AskBecomePass:    false,
 			AskVaultPassword: false,
 			Become:           true,
 			Inventory:        v.GetString("deploy.inventory-file"),
